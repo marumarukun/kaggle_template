@@ -1,3 +1,8 @@
+# データのダウンロードと各種メタデータファイルの編集
+.PHONY: setup
+setup:
+	python setup.py || (echo "Error: Setup failed. Please check your .env file and dependencies." && exit 1)
+
 # 実験コードをkaggleに初回アップロード
 .PHONY: init_exp
 init_exp:
