@@ -21,18 +21,40 @@ docker compose up -d --build
 
 ### 1. kaggleAPIを取得し、`.kaggle/kaggle.json`に記載
 
-[この記事](https://qiita.com/5sigma_AAA/items/791cca3214a89b9d1201)を参考にしました。体裁は`.kaggel/kaggle_sample.json`を参考にしてください
+[この記事](https://qiita.com/5sigma_AAA/items/791cca3214a89b9d1201)を参考にしました。体裁は`.kaggel/kaggle_sample.json`を参考にしてください。
 
-### 2. データセットをローカル環境にダウンロード
-
-kaggleAPI経由で`data`ディレクトリにダウンロードします
+APIキーを取得後、`.kaggle/kaggle.json`に保存し、以下のコマンドで適切なパーミッションを設定してください：
 
 ```bash
-kaggle competitions download -c eedi-mining-misconceptions-in-mathematics -p data && \
-unzip data/eedi-mining-misconceptions-in-mathematics.zip -d data && \
-rm data/eedi-mining-misconceptions-in-mathematics.zip
+chmod 600 .kaggle/kaggle.json
 ```
 
+### 2. データのダウンロードとメタデータの設定
+
+1. `.env.sample`をコピーし、`.env`ファイルを作成し、以下の情報を設定：
+```bash
+COMPETITION_NAME=competition-name    # Kaggleコンペティションのスラッグ名（URLの末尾部分）
+                                   # 例：https://www.kaggle.com/c/titanic の場合は "titanic"
+                                   # `kaggle competitions list` コマンドで確認可能
+KAGGLE_USERNAME=your-username       # あなたのKaggleユーザー名
+PROJECT_NAME=project-name           # プロジェクト名（任意）
+```
+
+2. セットアップを実行：
+```bash
+make setup
+```
+
+これにより、必要なデータのダウンロードと以下のメタデータファイルが設定されます：
+
+- `exp/dataset-metadata.json`: 実験コードをKaggle Datasetsとして管理するための設定ファイル
+  - データセット名、説明文、ライセンス等の情報を含む
+- `deps/kernel-metadata.json`: 依存パッケージ管理用notebookの設定ファイル
+  - kernelのタイトル、言語、競技情報等を含む
+- `sub/kernel-metadata.json`: 提出用notebookの設定ファイル
+  - kernelのタイトル、コンペティション情報、依存データセット等を含む
+
+これらのメタデータファイルは、Kaggle APIを使用してコードやデータセットをKaggleプラットフォームに正しくアップロードするために必要です。
 ### 3. 実験コード管理設定（`exp`以下）
 
 実験コードをkaggle Datasetにアップロードするための設定です
