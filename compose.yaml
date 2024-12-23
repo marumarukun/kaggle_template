@@ -1,6 +1,6 @@
 services:
-  dev:
-    container_name: kaggle-Eedi
+  gpu:
+    container_name: kaggle-template
     build:
       context: .
       dockerfile: Dockerfile
@@ -8,8 +8,8 @@ services:
     volumes:
       - type: bind
         source: $PWD
-        target: /kaggle/working
-    working_dir: /kaggle/working
+        target: /workspace
+    working_dir: /workspace
     deploy:
       resources:
         reservations:
@@ -17,3 +17,4 @@ services:
             - driver: nvidia
               capabilities: [ gpu ]
     tty: true
+    command: /bin/bash
