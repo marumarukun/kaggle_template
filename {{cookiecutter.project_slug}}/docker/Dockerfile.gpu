@@ -1,5 +1,5 @@
 # https://github.com/Kaggle/docker-python/releases
-FROM gcr.io/kaggle-gpu-images/python:latest
+FROM gcr.io/kaggle-gpu-images/python:v155
 
 WORKDIR /workspace
 
