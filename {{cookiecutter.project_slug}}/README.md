@@ -1,6 +1,8 @@
 # {{ cookiecutter.project_name }}
 
 ## setup
+以下の環境変数が設定されていることを確認してください。
+`.bashrc`や`.zshrc`に記述することをお勧めします：
 
 ```bash
 export KAGGLE_USERNAME={YOUR_KAGGLE_USERNAME}
