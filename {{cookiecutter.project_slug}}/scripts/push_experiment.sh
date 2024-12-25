@@ -7,7 +7,7 @@ if [ -z "$1" ]; then
 fi
 
 echo "Uploading codes..."
-uv run python src/upload.py codes
+python src/upload.py codes
 
 echo "Uploading artifacts for experiment: $1"
-uv run python src/upload.py artifacts --exp_name "$1"
+python src/upload.py artifacts --exp_name "$1"
