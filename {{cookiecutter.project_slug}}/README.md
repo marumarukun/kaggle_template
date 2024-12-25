@@ -1,27 +1,39 @@
 # {{ cookiecutter.project_name }}
 
 ## setup
-以下の環境変数が設定されていることを確認してください。
-`.bashrc`や`.zshrc`に記述することをお勧めします：
-
+### 1. `.env.sample`をコピーして`.env`を作成し、Kaggle認証情報を設定します：
 ```bash
-export KAGGLE_USERNAME={YOUR_KAGGLE_USERNAME}
-export KAGGLE_KEY={YOUR_KAGGLE_KEY}
+KAGGLE_USERNAME=your_username  # あなたのKaggleユーザー名
+KAGGLE_KEY=your_key           # あなたのKaggle API key
 ```
 
+### 2. 環境に応じてDockerコンテナを起動します：
+
+GPU環境の場合：
 ```bash
-uv sync
+docker compose up -d --build gpu
 ```
+
+CPU環境の場合：
+```bash
+docker compose up -d --build cpu
+```
+
+### 3. VSCodeの左下の「><」アイコンをクリックし、「コンテナーで再度開く」を選択してコンテナに接続します。
+
+### 4. VSCodeで推奨される拡張機能をインストールします：
+   - 右下に表示される「推奨される拡張機能をインストール」の通知をクリックする
+   - または、拡張機能タブ（Ctrl+Shift+X）から「推奨」セクションを確認してインストール
 
 ## download competition dataset
 
-1. Kaggle上でコンペティションへの参加登録を行う
+### 1. Kaggle上でコンペティションへの参加登録を行う
 
-2. データセットをダウンロード
+### 2. データセットをダウンロード
 
-    ```bash
-    sh scripts/download_competition.sh
-    ```
+  ```bash
+  sh scripts/download_competition.sh
+  ```
 
 ## submission flow
 
@@ -78,11 +90,6 @@ uv sync
     sh scripts/push_sub.sh
     ```
 
-## lint & format
-
-```bash
-uv run pre-commit run -a
-```
 
 ## Reference
 - [kaggle code competition 用のテンプレート作ってみた](https://osushinekotan.hatenablog.com/entry/2024/12/24/193145)
