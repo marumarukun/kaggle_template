@@ -13,9 +13,13 @@ uv sync
 
 ## download competition dataset
 
-```bash
-sh scripts/download_competition.sh
-```
+1. Kaggle上でコンペティションへの参加登録を行う
+
+2. データセットをダウンロード
+
+    ```bash
+    sh scripts/download_competition.sh
+    ```
 
 ## submission flow
 
