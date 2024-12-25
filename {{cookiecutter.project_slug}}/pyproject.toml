@@ -3,22 +3,6 @@ name = "{{ cookiecutter.project_slug }}"
 version = "0.1.0"
 description = "{{ cookiecutter.project_description }}"
 readme = "README.md"
-requires-python = ">={{ cookiecutter.python_version }}"
-dependencies = [
-    "kaggle>=1.6.17",
-    "kagglehub>=0.3.6",
-    "polars>=1.17.1",
-]
-
-[tool.uv]
-dev-dependencies = [
-    "ipykernel>=6.29.5",
-    "mypy>=1.12.0",
-    "ruff>=0.7.0",
-    "pre-commit>=4.0.1",
-    "rootutils>=1.0.7",
-    "fire>=0.7.0",
-]
 
 [tool.ruff]
 exclude = [".git", ".mypy_cache", ".ruff_cache", ".venv", "third_party"]

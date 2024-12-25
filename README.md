@@ -35,4 +35,3 @@ pip install cookiecutter
 - `project_slug`: 作成されるディレクトリ名
 - `project_description`: プロジェクトの説明
 - `kaggle_username`: kaggle に登録してあるユーザー名
-- `python_version`: 使用する python version。`3.11` や `3.12` のように指定する
