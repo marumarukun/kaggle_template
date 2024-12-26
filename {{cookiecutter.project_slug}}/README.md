@@ -46,7 +46,60 @@ docker compose up -d --build cpu
 
 ### 2. 実験を行う
 - モデルの学習と保存は `code.ipynb` で行う
+
+    <details>
+    <summary>例</summary>
+
+    ```python
+    import config
+    import joblib
+    import polars as pl
+    from xgboost import XGBClassifier
+
+    train_df = pl.read_csv(config.COMP_DATASET_DIR / "train.csv")
+    model_dir = config.OUTPUT_DIR / "models"
+    model_dir.mkdir(exist_ok=True, parents=True)
+
+    model = XGBClassifier(n_estimators=100, random_state=0)
+    model.fit(X=train_df.select(["Age", "VIP", "VRDeck"]).to_numpy(), 
+            y=train_df["Transported"].to_numpy())
+
+    joblib.dump(model, model_dir / "model.joblib")
+    ```
+    </details>
+
+
+
 - 推論と提出用ファイルの作成は `inference.py` で行う
+
+    <details>
+    <summary>推論と提出用ファイルの作成 (inference.py)</summary>
+
+    ```python
+    import config
+    import joblib
+    import polars as pl
+
+    test_df = pl.read_csv(config.COMP_DATASET_DIR / "test.csv")
+    sub_df = pl.read_csv(config.COMP_DATASET_DIR / "sample_submission.csv")
+    model_dir = config.ARTIFACT_EXP_DIR(config.EXP_NAME) / "models"
+
+    # ARTIFACT_EXP_DIR を参照してモデルをロード
+    model = joblib.load(model_dir / "model.joblib")
+    test_pred = model.predict(test_df.select(["Age", "VIP", "VRDeck"]).to_numpy())
+
+    # OUTPUT_DIR に提出用ファイルを保存
+    sub_df.with_columns(pl.Series("Transported", test_pred)).write_csv(
+        config.OUTPUT_DIR / "submission.csv")
+    ```
+    </details>
+
+
+> **Note**
+> - path周りの設定は全て`config.py`に書く
+> - 当該notebook/codeの生成物は`OUTPUT_DIR`に出力する
+> - 当該notebook/code以外の生成物のロードは`ARTIFACT_EXP_DIR`を参照する
+
 
 ### 3. 以下のいずれかの方法を使って、サブミッション時に使用するコードやモデルを upload する
 
@@ -75,11 +128,12 @@ docker compose up -d --build cpu
 
 
 ### 4. 必要な dependencies を push する
-  - スクリプトの実行
-  
-    ```sh
-    sh scripts/push_deps.sh
-    ```
+- `deps/code.ipynb` を必要なパッケージをインストールするように編集
+- スクリプトの実行
+
+  ```sh
+  sh scripts/push_deps.sh
+  ```
 
 ### 5. submission
   - `sub/code.ipynb` を編集して使用するモデルやコードを指定
