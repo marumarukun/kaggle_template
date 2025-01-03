@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-EXP_NAME = "001"
+EXP_NAME = Path(__file__).parent.name
 
 
 # ---------- # DIRECTORIES # ---------- #
