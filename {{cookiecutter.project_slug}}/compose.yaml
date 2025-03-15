@@ -1,6 +1,6 @@
 services:
   gpu:
-    container_name: kaggle-cibmtr
+    container_name: "{{ cookiecutter.project_name }}-gpu"
     build:
       context: ./docker/
       dockerfile: Dockerfile.gpu
@@ -22,7 +22,7 @@ services:
       - .env
 
   cpu:
-    container_name: kaggle-cibmtr-cpu
+    container_name: "{{ cookiecutter.project_name }}-cpu"
     build:
       context: ./docker/
       dockerfile: Dockerfile.cpu
