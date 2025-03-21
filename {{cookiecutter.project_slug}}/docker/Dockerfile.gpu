@@ -9,4 +9,5 @@ RUN pip install --no-cache-dir \
     hydra-core \
     python-dotenv \
     rootutils \
-    fire
+    fire \
+    japanize-matplotlib

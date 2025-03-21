@@ -10,4 +10,5 @@ RUN pip install --no-cache-dir \
     python-dotenv \
     rootutils \
     fire \
-    polars-lts-cpu
+    polars-lts-cpu \
+    japanize-matplotlib
