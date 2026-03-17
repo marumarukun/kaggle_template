@@ -5,7 +5,7 @@
 初めてこのプロジェクトを使う場合は、以下のチェックリストに従ってセットアップしてください。
 
 - [ ] `.env.sample` をコピーして `.env` を作成
-- [ ] `.env` に `KAGGLE_USERNAME` と `KAGGLE_KEY` を設定
+- [ ] `.env` に `KAGGLE_USERNAME`・`KAGGLE_KEY`・`WANDB_API_KEY` を設定
 - [ ] 開発環境をセットアップ（**uv** または **Docker** を選択）
 - [ ] `docs/` 配下のコンペ情報ドキュメントを整備
 - [ ] Kaggle上でコンペティションへの参加登録
@@ -17,7 +17,7 @@
 
 ### 1. 環境変数の設定
 
-`.env.sample`をコピーして`.env`を作成し、Kaggle認証情報を設定します：
+`.env.sample`をコピーして`.env`を作成し、認証情報を設定します：
 
 ```bash
 cp .env.sample .env
@@ -25,8 +25,9 @@ cp .env.sample .env
 
 `.env` ファイルを編集:
 ```bash
-KAGGLE_USERNAME=your_username  # あなたのKaggleユーザー名
-KAGGLE_KEY=your_key           # あなたのKaggle API key
+KAGGLE_USERNAME=your_username      # あなたのKaggleユーザー名
+KAGGLE_KEY=your_key                # あなたのKaggle API key
+WANDB_API_KEY=your_wandb_api_key   # あなたのW&B API key
 ```
 
 > **Kaggle API Key の取得方法**:
@@ -531,7 +532,7 @@ sub/
 
 **対処法**:
 1. `.env.sample` を `.env` にコピー
-2. `KAGGLE_USERNAME` と `KAGGLE_KEY` を正しく設定
+2. `KAGGLE_USERNAME`・`KAGGLE_KEY`・`WANDB_API_KEY` を正しく設定
 3. 値が `your_username` や `your_key` のままになっていないか確認
 
 ---
