@@ -393,7 +393,7 @@ kernel-metadata.json          →  Kaggle上のリソース
 ─────────────────────────────────────────────────────
 competition_sources           →  コンペデータ (/kaggle/input/competitions/{comp}/)
 dataset_sources (comp-codes)  →  実験コード (/kaggle/input/datasets/{user}/{comp}-codes/)
-kernel_sources (comp-deps)    →  依存パッケージ (/kaggle/input/{comp}-deps/) ※要確認
+kernel_sources (comp-deps)    →  依存パッケージ (/kaggle/input/notebooks/{user}/{comp}-deps/)
 model_sources (comp-artifacts)→  学習済みモデル (/kaggle/input/models/{user}/{comp}-artifacts/)
 ```
 
