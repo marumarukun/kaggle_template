@@ -69,7 +69,14 @@ else:
     KAGGLE_USERNAME = os.getenv("KAGGLE_USERNAME", "{{ cookiecutter.kaggle_username }}")
     ARTIFACT_DIR = INPUT_DIR / "models" / KAGGLE_USERNAME / f"{KAGGLE_COMPETITION_NAME}-artifacts".lower() / "other"
     OUTPUT_DIR = ROOT_DIR  # Kaggle環境では /kaggle/working に出力
-    VERSION = os.getenv("EXP_VERSION", "1")
+
+    # Kaggle環境ではマウントされたバージョンディレクトリを自動検出
+    _exp_artifact_dir = ARTIFACT_DIR / EXP_NAME
+    if _exp_artifact_dir.exists():
+        _versions = [d.name for d in _exp_artifact_dir.iterdir() if d.is_dir() and d.name.isdigit()]
+        VERSION = max(_versions, key=int) if _versions else "1"
+    else:
+        VERSION = os.getenv("EXP_VERSION", "1")
     COMP_DATASET_DIR = INPUT_DIR / "competitions" / KAGGLE_COMPETITION_NAME
 
 for d in [INPUT_DIR, OUTPUT_DIR]:
