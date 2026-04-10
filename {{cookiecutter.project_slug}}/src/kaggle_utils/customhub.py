@@ -31,6 +31,7 @@ IGNORE_PATTERNS = [
     "catboost_info",
     "docker",
     "compose.yaml",
+    "wandb",
 ]
 
 
