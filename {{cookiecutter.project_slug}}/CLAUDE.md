@@ -4,9 +4,17 @@ Kaggle コードコンペティション「{{ cookiecutter.competition_name }}�
 
 ## 実験ログ（重要）
 
-- `docs/experiment_log.md` — **実験の全履歴・戦略・知見をまとめた中央ドキュメント**
-- 新しい実験に取り組む前に必ず読むこと。過去の仮説・結果・学びが記録されている
-- 実験が完了したら、このファイルを更新すること（`/experiment-log` スキルで自動化可能）
+実験ログは用途別に **4 つのファイル** に分担して管理する。
+新しい実験を考える・実装する前は **以下の順** で読むこと。
+
+1. **`docs/agent_brief.md`** — 必読。Current State / Must-Know Rules / Strategic Conclusions / Do Not Repeat / Open Questions
+2. **`docs/decision_rules.md`** — 必読。Adopted / Rejected / Conditional / Operational Pitfalls
+3. **`docs/experiment_index.md`** — 過去実験の索引。関連実験を特定する
+4. **`docs/experiment_log.md`** — 詳細な時系列ログ（原本）。**該当実験のセクションだけ** を読む（全文は読まない）
+
+個別実験の設計仕様は `experiments/{NNN}/SPEC.md` も参照可能（任意、大きな実験で推奨）。
+
+実験完了時は `/experiment-log` スキルで上記 4 ファイル + `experiments/{NNN}/SPEC.md` を更新する。
 
 ## コンペ情報
 
