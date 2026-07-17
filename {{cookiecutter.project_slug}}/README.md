@@ -102,6 +102,19 @@ VSCodeで接続する場合：
 
 ---
 
+## コーディングエージェント（Claude Code / Codex）
+
+このプロジェクトは Claude Code と OpenAI Codex の両方に対応しています。
+
+- **プロジェクト指示**: 実体は `CLAUDE.md`。Codex が読む `AGENTS.md` はそのシンボリックリンクなので、内容は常に同一です。編集は `CLAUDE.md`（= `AGENTS.md`）どちらから行っても同じファイルに反映されます
+- **スキル**: 実体は `.claude/skills/`。Codex が読む `.agents/skills` はそのシンボリックリンクです（SKILL.md 形式は両ツール共通）
+  - `experiment-log` — 実験の記録・参照・次の実験提案（Claude Code: `/experiment-log`、Codex: `$experiment-log` または依頼文から自動起動）
+  - `submission-timer` — Kaggle 提出の監視と所要時間計測
+
+> **Note**: シンボリックリンクが作成できない環境（Windows の非開発者モード等）では、プロジェクト生成時にコピーで代替されます。その場合のみ `CLAUDE.md` / `.claude/skills` 編集時に手動同期が必要です。
+
+---
+
 ## Download Competition Dataset
 
 ```bash

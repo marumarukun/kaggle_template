@@ -50,3 +50,20 @@ kaggle_username []: your_kaggle_username
 
 - `competition_name` はコンペURLの `https://www.kaggle.com/competitions/titanic` の末尾部分 `titanic` を入力
 - `project_slug` は作成されるディレクトリ名になるので、シンプルな名前がおすすめ
+
+## コーディングエージェント対応（Claude Code / Codex）
+
+生成されるプロジェクトは Claude Code と OpenAI Codex の両方に対応しています。
+実体（canonical）は Claude Code 用のファイルで、Codex 用の入口は post-generation hook（`hooks/post_gen_project.py`）が生成時にシンボリックリンクとして自動作成します。リンクのため **内容は常に完全に同一** です。
+
+| 実体（編集はこちら） | シンボリックリンク | 読み込むツール |
+|---|---|---|
+| `CLAUDE.md` | `AGENTS.md` | Claude Code は `CLAUDE.md`、Codex は `AGENTS.md` を読む |
+| `.claude/skills/` | `.agents/skills/` | Claude Code は `.claude/skills`、Codex は `.agents/skills` を読む（SKILL.md 形式は共通） |
+
+このテンプレートから過去に生成した既存プロジェクトへ後付けする場合は、プロジェクトルートで以下を実行してください:
+
+```bash
+ln -s CLAUDE.md AGENTS.md
+mkdir -p .agents && ln -s ../.claude/skills .agents/skills
+```
