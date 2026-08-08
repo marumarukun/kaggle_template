@@ -81,12 +81,14 @@ uv run python .claude/skills/submission-timer/scripts/watch_submission.py --time
 
 - **API呼び出し失敗**: リトライして継続。3回連続失敗で警告を表示するが監視は継続
 - **Ctrl+C**: 現在の経過時間を表示して終了
-- **提出がERROR**: エラー内容を表示（`errorDescription`フィールド）
+- **提出がERROR**: APIの `errorDescription` があれば参考情報として表示する。ただし、これはhidden testの実行ログではなく、空または一般的な内容の場合がある
 
 ## 注意事項
 
 - 計測される時間はキュー待ち時間を含む壁時計時間であり、純粋なNB実行時間ではない
 - テストデータの量はステージによって変わるため、同じNBでもステージごとに実行時間は異なる
+- Notebook手動実行はsample/pseudo testを使う。そこで成功しても、性質や規模が異なり得るhidden testでの実提出成功は保証されない
+- hidden testで実提出がERRORになっても、実行ログ・print出力は取得できない。ログ追加による調査や、提出を通すためのフォールバックを提案しない
 - 複数の提出が同時にPENDINGの場合、すべてを追跡する
 - 提出時刻は Kaggle API が返す UTC datetime をローカルタイムゾーンに変換して表示する
 - 既に提出されてPENDING状態のものを途中から監視しても、API の `date` を起点に正確な経過時間を算出する

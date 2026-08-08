@@ -210,7 +210,14 @@ def main():
                 print(f"  完了時刻: {format_local(now_utc)}", flush=True)
                 print(f"  経過時間: {format_duration(elapsed)}", flush=True)
                 if sub["error_description"]:
-                    print(f"  エラー: {sub['error_description']}", flush=True)
+                    print(
+                        "  Kaggle APIのエラー情報（hidden test実行ログではありません）: "
+                        f"{sub['error_description']}",
+                        flush=True,
+                    )
+                else:
+                    print("  Kaggle APIから詳細なエラー情報は提供されていません", flush=True)
+                print("  hidden testの実行ログ・print出力は取得できません", flush=True)
                 print("=" * 50, flush=True)
                 print(flush=True)
 

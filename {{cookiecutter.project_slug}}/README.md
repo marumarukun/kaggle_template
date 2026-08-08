@@ -616,16 +616,31 @@ cp experiments/templates/tabular/* experiments/001/
 
 ---
 
-### Kaggle Kernel が "Error" で失敗
+### Kaggle Notebookの手動実行が "Error" で失敗
+
+Notebookの手動実行ではログ・print出力を確認できます。
 
 **対処法**:
-1. `sh scripts/status.sh` でエラーログを確認
-2. ログを確認: `kaggle kernels output <kernel_slug>`
-3. よくある原因:
+1. `sh scripts/status.sh` でNotebookの実行状態を確認
+2. `kaggle kernels output <kernel_slug>` またはKaggle WebでNotebookの実行ログを確認
+3. よくある原因を確認:
    - 依存パッケージの不足 → `deps/code.ipynb` を更新して `sh scripts/push_deps.sh`
    - パスの間違い → `sub/code.ipynb` の inference.py パスを確認
    - モデルファイルの参照エラー → `sub/kernel-metadata.json` の `model_sources` を確認
-   - モデルが Kaggle 上で未反映 → Kaggle Web で反映を確認してから再度 `sh scripts/push_sub.sh`
+   - モデルがKaggle上で未反映 → Kaggle Webで反映を確認してから再度 `sh scripts/push_sub.sh`
+
+> **重要**: 手動実行で使われるのは公開されたsample/pseudo testであり、本番のhidden testではありません。hidden testはデータ量、値の分布、欠損や未知値などのエッジケースが異なり得るため、手動実行が成功しても実提出が成功するとは限りません。
+
+### コンペへの実提出がhidden testで "Error" になった
+
+コンペ提出後のhidden test再実行では、ログ・print出力を一切確認できません。`status.sh` やKaggle APIで確認できるのは、成功/失敗などの状態と限定的なメタデータだけです。
+
+**対処法**:
+1. hidden testのログ取得や、ログ・print追加による原因調査は行わない
+2. 例外を握りつぶす、定数予測へ切り替える、sample submissionを流用する、失敗行をスキップする、代替モデルを使うといったフォールバックを追加しない
+3. ローカルまたはNotebook手動実行で、入力規模、値の範囲、欠損、未知値、空データ、時間、メモリなどの条件を変えて再現を試みる
+4. artifactの実験番号・version、ファイルパス、入力と出力の行数・列、予測値の有限性を明示的に検証する
+5. 再現できない場合は原因を断定せず、提出コードはfail fastのまま維持する
 
 ---
 
