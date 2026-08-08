@@ -102,13 +102,36 @@ VSCodeで接続する場合：
 
 ---
 
+## 実験ドキュメント管理
+
+実験履歴は、目的の異なる2ファイルだけで管理します。
+
+| ファイル | 内容 |
+|---|---|
+| `docs/experiments.md` | 仮説、ベース実験、CV、Public LB、その条件での観測 |
+| `docs/engineering_notes.md` | 複数実験に影響する実装・運用上の注意事項 |
+
+パラメーターや詳細な実装はドキュメントへ転記せず、`experiments/{NNN}/` のコードを参照します。スコアを記録した実験フォルダは原則として変更せず、条件を変える場合は新しい実験番号を作成します。
+
+`docs/experiments.md` には、実験結果を恒久的な成功・失敗として記録しません。「この条件ではCVが低下した」「データ量が増えた場合は再検討できる」のように、観測と適用条件を短く残します。
+
+基本的な流れは次のとおりです。
+
+1. 実験前に仮説とベース実験を台帳へ追加
+2. 実験コードを作成・実行
+3. 同じ行へCVを追記
+4. 提出した場合だけPublic LBを追記
+5. 再利用すべき実装上の注意が見つかった場合だけ `engineering_notes.md` を更新
+
+---
+
 ## コーディングエージェント（Claude Code / Codex）
 
 このプロジェクトは Claude Code と OpenAI Codex の両方に対応しています。
 
 - **プロジェクト指示**: 実体は `CLAUDE.md`。Codex が読む `AGENTS.md` はそのシンボリックリンクなので、内容は常に同一です。編集は `CLAUDE.md`（= `AGENTS.md`）どちらから行っても同じファイルに反映されます
 - **スキル**: 実体は `.claude/skills/`。Codex が読む `.agents/skills` はそのシンボリックリンクです（SKILL.md 形式は両ツール共通）
-  - `experiment-log` — 実験の記録・参照・次の実験提案（Claude Code: `/experiment-log`、Codex: `$experiment-log` または依頼文から自動起動）
+  - `experiment-log` — 実験開始時の仮説登録、CV/Public LBの記録、振り返り、再検討候補の提案（Claude Code: `/experiment-log`、Codex: `$experiment-log` または依頼文から自動起動）
   - `submission-timer` — Kaggle 提出の監視と所要時間計測
 
 > **Note**: シンボリックリンクが作成できない環境（Windows の非開発者モード等）では、プロジェクト生成時にコピーで代替されます。その場合のみ `CLAUDE.md` / `.claude/skills` 編集時に手動同期が必要です。
@@ -140,6 +163,8 @@ sh scripts/new_exp.sh --base 001               # 001をコピー → experiments
 sh scripts/new_exp.sh --base 002 --name 005    # 002をコピー → experiments/005/
 ```
 
+実験を始める前に、`docs/experiments.md` へ仮説とベース実験を記録してください。コーディングエージェントへ「001をベースに新しい実験を作って」と依頼した場合は、`experiment-log` スキルが実験フォルダの作成と台帳への追加を行います。
+
 作成されるファイル：
 | ファイル | 役割 | 編集が必要か |
 |---------|------|------------|
@@ -153,40 +178,39 @@ sh scripts/new_exp.sh --base 002 --name 005    # 002をコピー → experiments
 
 #### バージョン管理について
 
-同じ実験でパラメータを変えて複数回学習する場合、`EXP_VERSION` 環境変数でバージョンを管理できます。
+`EXP_VERSION` は、同じ実験条件の再実行や成果物の世代管理に使用します。性能へ影響する条件を変える場合は、比較可能性を保つため新しい実験番号を作成してください。
 
 ```bash
 # デフォルト: バージョン 1 に出力
 # data/output/001/1/ に保存される
 
-# バージョン 2 に出力
-EXP_VERSION=2 python -c "import config; print(config.OUTPUT_DIR)"
+# バージョン 2 に出力して学習
+EXP_VERSION=2 uv run python experiments/001/train.py
 # → data/output/001/2/
 
-# 次のバージョンを自動生成（既存の最大値 + 1）
-EXP_VERSION=next python -c "import config; print(config.OUTPUT_DIR)"
+# 次のバージョンを自動生成して学習（既存の最大値 + 1）
+EXP_VERSION=next uv run python experiments/001/train.py
 # → data/output/001/3/ （001/1, 001/2 が存在する場合）
 
-# 最新の既存バージョンを使用（推論時などに便利）
-EXP_VERSION=latest python -c "import config; print(config.OUTPUT_DIR)"
+# 最新の既存バージョンを使って推論
+EXP_VERSION=latest uv run python experiments/001/inference.py
 # → data/output/001/2/ （001/1, 001/2 が存在する場合）
 ```
 
 CLI で実行する場合：
 
 ```bash
-# 実験ディレクトリに移動して実行
-cd experiments/001
-python train.py
+# 次のversionで学習
+EXP_VERSION=next uv run python experiments/001/train.py
 
-# バージョンを指定して実行
-EXP_VERSION=2 python train.py
+# 同じ条件をバージョン指定で再実行
+EXP_VERSION=2 uv run python experiments/001/train.py
 
 # デバッグモード（少ないエポック/ラウンドで実行）
-python train.py --debug
+EXP_VERSION=next uv run python experiments/001/train.py --debug
 
 # 特定のfoldのみ実行
-python train.py --fold 1
+EXP_VERSION=next uv run python experiments/001/train.py --fold 1
 ```
 
 <details>
@@ -504,6 +528,9 @@ sh scripts/push_artifacts.sh 001 --update         # 既存のModelを更新
 │   │   ├── train.py      # 学習用スクリプト
 │   │   └── inference.py  # 推論コード
 │   └── templates/        # 実験テンプレート
+├── docs/
+│   ├── experiments.md    # 仮説・CV・Public LBの実験台帳
+│   └── engineering_notes.md # 実装・運用上の共通注意事項
 ├── sub/                   # 提出用Kernel
 │   ├── code.ipynb        # 提出時に実行されるノートブック
 │   └── kernel-metadata.json
@@ -583,7 +610,7 @@ cp experiments/templates/tabular/* experiments/001/
 **原因**: 実験を実行していない、または出力パスが間違っている
 
 **対処法**:
-1. `experiments/001/train.py` を実行してモデルを学習・保存
+1. `EXP_VERSION=next uv run python experiments/001/train.py` でモデルを学習・保存
 2. `config.py` の `OUTPUT_DIR` を確認
 3. `data/output/001/1/` にファイルが出力されているか確認
 

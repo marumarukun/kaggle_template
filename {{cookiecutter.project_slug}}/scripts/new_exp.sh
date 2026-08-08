@@ -63,7 +63,7 @@ while [ $# -gt 0 ]; do
             exit 0
             ;;
         *)
-            echo -e "${RED}Unknown option: $1${NC}"
+            printf '%b\n' "${RED}Unknown option: $1${NC}"
             exit 1
             ;;
     esac
@@ -74,7 +74,7 @@ if [ -n "$BASE_EXP" ]; then
     # --base mode: copy from an existing experiment
     SOURCE_DIR="experiments/$BASE_EXP"
     if [ ! -d "$SOURCE_DIR" ]; then
-        echo -e "${RED}Error: Base experiment '$BASE_EXP' not found.${NC}"
+        printf '%b\n' "${RED}Error: Base experiment '$BASE_EXP' not found.${NC}"
         echo "Available experiments:"
         for dir in experiments/*/; do
             dir_name=$(basename "$dir")
@@ -89,7 +89,7 @@ else
     # --template mode: copy from template
     SOURCE_DIR="experiments/templates/$TEMPLATE"
     if [ ! -d "$SOURCE_DIR" ]; then
-        echo -e "${RED}Error: Template '$TEMPLATE' not found.${NC}"
+        printf '%b\n' "${RED}Error: Template '$TEMPLATE' not found.${NC}"
         echo "Available templates:"
         ls -1 experiments/templates/ 2>/dev/null || echo "  (none)"
         exit 1
@@ -120,13 +120,13 @@ fi
 # Check if experiment already exists
 EXP_DIR="experiments/$EXP_NAME"
 if [ -d "$EXP_DIR" ]; then
-    echo -e "${RED}Error: Experiment '$EXP_NAME' already exists.${NC}"
+    printf '%b\n' "${RED}Error: Experiment '$EXP_NAME' already exists.${NC}"
     exit 1
 fi
 
 # Create experiment directory
 echo ""
-echo -e "${BLUE}Creating new experiment: $EXP_NAME${NC}"
+printf '%b\n' "${BLUE}Creating new experiment: $EXP_NAME${NC}"
 echo "Source: $SOURCE_LABEL"
 echo ""
 
@@ -138,13 +138,13 @@ cp -r "$SOURCE_DIR"/* "$EXP_DIR/"
 
 # config.py の EXP_NAME は Path(__file__).parent.name で自動的にディレクトリ名を取得するため修正不要
 if [ -f "$EXP_DIR/config.py" ]; then
-    echo -e "${GREEN}config.py will use EXP_NAME='$EXP_NAME' automatically${NC}"
+    printf '%b\n' "${GREEN}config.py will use EXP_NAME='$EXP_NAME' automatically${NC}"
 fi
 
 echo ""
-echo -e "${GREEN}========================================"
+printf '%b\n' "${GREEN}========================================"
 echo "Experiment created successfully!"
-echo "========================================${NC}"
+printf '%b\n' "========================================${NC}"
 echo ""
 echo "Location: $EXP_DIR"
 if [ -n "$BASE_EXP" ]; then
@@ -155,8 +155,8 @@ echo "Files created:"
 ls -la "$EXP_DIR"
 echo ""
 echo "Next steps:"
-echo "  1. Edit $EXP_DIR/config.py to adjust parameters"
-echo "  2. Edit $EXP_DIR/train.py for training"
-echo "  3. Run: cd $EXP_DIR && python train.py"
-echo "  4. Submit: sh scripts/submit.sh $EXP_NAME"
+echo "  1. Record the hypothesis and base experiment in docs/experiments.md"
+echo "  2. Edit $EXP_DIR/config.py and $EXP_DIR/train.py"
+echo "  3. Run: EXP_VERSION=next uv run python $EXP_DIR/train.py"
+echo "  4. Record CV and Public LB in the same row of docs/experiments.md"
 echo ""

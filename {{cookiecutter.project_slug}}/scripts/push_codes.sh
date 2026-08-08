@@ -2,5 +2,5 @@
 set -e
 
 echo "Uploading codes dataset..."
-python src/upload.py codes
+uv run python src/upload.py codes
 echo "Done!"

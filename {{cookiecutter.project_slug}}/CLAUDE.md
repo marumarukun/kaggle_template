@@ -2,28 +2,29 @@
 
 Kaggle コードコンペティション「{{ cookiecutter.competition_name }}」用プロジェクト。
 
-## 提出コードの鉄則（最重要・常に意識すること）
+## 実験ドキュメント（重要）
 
-実提出（隠し test データでの再実行）は**完全なブラックボックス**である。成功してもログ・print 出力は一切見られず、失敗してもエラー内容は取得できない。Kaggle 上で Notebook を手動実行して見えるのは疑似 test データへの推論結果だけである。この前提から、以下を厳守すること:
+新しい実験の検討・実装・記録を行う前に、次の2ファイルを読むこと。
 
-- **「提出を失敗させないためのフォールバック」を入れてはならない**（例外を握りつぶす try/except、データ仕様が想定外の場合に定数予測へ切り替える等）。フォールバックが発動したかどうかを観測する手段がないため、「モデルの性能が悪い」のか「フォールバックが発動してスコアが下がった」のかが切り分け不能になる。これはデバッグ不能な状態を自ら作る行為であり、**有害**である
-- 提出失敗時に「ログを仕込んで原因を調べましょう」と提案してはならない。そのログは実提出環境では**誰も見られない**ため無意味である
-- 方針は **fail fast**。想定外の状態では黙って継続せず、明示的に失敗させる。「エラーで落ちた」という事実自体が、実提出環境から得られる唯一の観測可能なシグナルであり、スコアの解釈を汚染しない
-- 原因調査は、ローカルおよび Kaggle Notebook の手動実行（疑似 test）での再現・検証によって行う
+1. **`docs/experiments.md`** — 仮説、ベース実験、CV、Public LB、再検討の手がかりを一覧する唯一の実験台帳
+2. **`docs/engineering_notes.md`** — 複数実験に影響する実装・運用上の注意事項
 
-## 実験ログ（重要）
+詳細な設定とパラメーターは `experiments/{NNN}/` のコードを正とし、ドキュメントへ転記しない。
 
-実験ログは用途別に **4 つのファイル** に分担して管理する。
-新しい実験を考える・実装する前は **以下の順** で読むこと。
+実験管理では以下を守ること。
 
-1. **`docs/agent_brief.md`** — 必読。Current State / Must-Know Rules / Strategic Conclusions / Do Not Repeat / Open Questions
-2. **`docs/decision_rules.md`** — 必読。Adopted / Rejected / Conditional / Operational Pitfalls
-3. **`docs/experiment_index.md`** — 過去実験の索引。関連実験を特定する
-4. **`docs/experiment_log.md`** — 詳細な時系列ログ（原本）。**該当実験のセクションだけ** を読む（全文は読まない）
+- 仮説と変更意図は結果を見る前に `docs/experiments.md` へ記録する
+- CVとPublic LBは実データからのみ記録し、推測しない
+- スコア記録後の実験フォルダは原則変更せず、条件変更は新しい実験番号で行う
+- 過去の結果を恒久的な `Rejected` や「二度と試さない」という判断に変換しない
+- 結果は「現条件では」の観測として書き、前提が変わった場合の再検討を妨げない
+- 性能と無関係な再発防止事項だけ `docs/engineering_notes.md` に記録する
 
-個別実験の設計仕様は `experiments/{NNN}/SPEC.md` も参照可能（任意、大きな実験で推奨）。
+実験の開始・結果記録・振り返りには `/experiment-log` スキルを使用する。
 
-実験完了時は `/experiment-log` スキルで上記 4 ファイル + `experiments/{NNN}/SPEC.md` を更新する。
+## 提出コード
+
+推論・提出コードを変更する前に、`docs/engineering_notes.md` の Kaggle Submission を読むこと。実提出はブラックボックスとして扱い、例外を握りつぶすフォールバックを入れず、fail fastにする。
 
 ## コンペ情報
 
@@ -46,18 +47,18 @@ Kaggle コードコンペティション「{{ cookiecutter.competition_name }}�
 
 - 各実験の `config.py` が `IS_KAGGLE_ENV` でローカル/Kaggle環境を自動判別しパスを切り替える
 - `EXP_NAME` は `Path(__file__).parent.name` から自動取得（フォルダ名 = 実験名）
-- `EXP_VERSION` 環境変数でバージョン管理（`next` で新規、`latest` で最新）
+- `EXP_VERSION` は同じ条件の再実行や成果物の世代管理に使用する（`next` で新規、`latest` で最新）
 
 ## 主要コマンド
 
 ```sh
 sh scripts/new_exp.sh                  # 新規実験作成
 sh scripts/download_competition.sh     # データダウンロード
-sh scripts/push_codes.sh              # コードをKaggle Datasetにアップロード
-sh scripts/push_artifacts.sh {NNN}    # モデルをKaggle Modelにアップロード
-sh scripts/push_deps.sh              # 依存パッケージをアップロード
-sh scripts/push_sub.sh               # 提出カーネルをpush
-sh scripts/status.sh                 # 提出状況を確認
+sh scripts/push_codes.sh               # コードをKaggle Datasetにアップロード
+sh scripts/push_artifacts.sh {NNN}     # モデルをKaggle Modelにアップロード
+sh scripts/push_deps.sh                # 依存パッケージをアップロード
+sh scripts/push_sub.sh                 # 提出カーネルをpush
+sh scripts/status.sh                   # 提出状況を確認
 ```
 
 細かい仕様やオプションは `README.md` を参照。

@@ -28,7 +28,7 @@ KERNEL_SLUG="$1"
 
 if [ -z "$KERNEL_SLUG" ]; then
     if [ -f "sub/kernel-metadata.json" ]; then
-        KERNEL_SLUG=$(python -c "import json; print(json.load(open('sub/kernel-metadata.json'))['id'])" 2>/dev/null)
+        KERNEL_SLUG=$(uv run python -c "import json; print(json.load(open('sub/kernel-metadata.json'))['id'])" 2>/dev/null)
         if [ -z "$KERNEL_SLUG" ]; then
             echo -e "${RED}Error: Could not read kernel slug from sub/kernel-metadata.json${NC}"
             exit 1
@@ -76,7 +76,7 @@ echo -e "${BLUE}--- Recent Submissions ---${NC}"
 # Try to get competition name from kernel-metadata.json
 COMPETITION=""
 if [ -f "sub/kernel-metadata.json" ]; then
-    COMPETITION=$(python -c "
+    COMPETITION=$(uv run python -c "
 import json
 data = json.load(open('sub/kernel-metadata.json'))
 sources = data.get('competition_sources', [])

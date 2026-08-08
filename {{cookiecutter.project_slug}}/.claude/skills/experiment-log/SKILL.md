@@ -1,245 +1,113 @@
 ---
 name: experiment-log
-description: Kaggle実験の記録・参照・次の実験提案を行う。「実験を記録して」「実験ログを更新」「実験結果をまとめて」「ログに追加して」と言ったとき（記録モード）、または「次何やる？」「実験履歴を見せて」「アイデアある？」「これまでの実験を振り返って」と言ったとき（参照モード）に使用。実験コード・git履歴・出力ファイルを自動分析し、用途別の複数ドキュメントを更新する。単なるコードレビューやバグ修正には使用しない。
+description: Kaggle実験の開始、CV・Public LB結果の記録、過去実験の振り返り、再検討候補の提案、実装上の注意事項の記録を行う。「新しい実験を作って」「実験を記録して」「LBを追記して」「次に何を試す？」「過去の実験を振り返って」「この注意点を残して」といった依頼で使用する。実験台帳は docs/experiments.md、共通の実装・運用注意は docs/engineering_notes.md のみを更新する。
 ---
 
 # Experiment Log
 
-Kaggleコンペティションの実験履歴を、用途別の複数ドキュメントで管理するスキル。AIが実験コードを自動分析してドラフトを作成し、ユーザーが確認・承認する。
+Kaggle実験を、短い台帳と実装上の注意事項だけで管理する。
 
-## Important
+## Principles
 
-- 実験履歴は **用途別に分けて管理** する。1ファイル集中ではない
-  - **`docs/agent_brief.md`**: 新実験前に必ず読む短い作戦メモ（Current State / Rules / Strategic Conclusions / Do Not Repeat / Open Questions）
-  - **`docs/decision_rules.md`**: 採用・封印・条件付きの判断ルール集
-  - **`docs/experiment_index.md`**: 実験ごとの短い索引テーブル
-  - **`docs/experiment_log.md`**: 詳細な時系列ログ（原本）
-  - **`experiments/{NNN}/SPEC.md`**: 個別実験の設計仕様（任意）
-- 参照時はまず `agent_brief.md` と `decision_rules.md` を読み、必要な詳細だけ `experiment_index.md` 経由で `experiment_log.md` の該当セクションを掘る
-- 記録時は詳細ログだけでなく、次の意思決定に影響する内容を `agent_brief.md` / `decision_rules.md` / `experiment_index.md` にも反映する
-- AIがドラフトを書き、ユーザーが確認する。**ユーザーの承認なしにファイルを更新しない**
-- 記録は **日本語** で行う（技術用語は英語のまま可）
-- スコアや数値は **必ず実際のデータソース（CSV, ログファイル, LB結果）から取得** する。推測で数値を書かない
-- `agent_brief.md` と `decision_rules.md` は **長くしすぎない**。次の意思決定に必要な内容だけを残す。古くなった項目は削除・移動する
+- 最初に `docs/experiments.md` と `docs/engineering_notes.md` を読む。
+- 実験の設定とパラメーターは `experiments/{NNN}/` のコードを正とし、文書へ転記しない。
+- 仮説と変更意図は結果を見る前に記録する。
+- CVとPublic LBはログ、出力ファイル、Kaggle結果などの実データからのみ記録し、推測しない。
+- 過去の結果を恒久的な採用・却下判断に変換しない。「現条件では」の観測として扱う。
+- 明示的な記録・更新依頼はファイル更新の許可を含む。不明点が結果の意味を変える場合だけ確認する。
 
-## モード判定
+## `docs/experiments.md` の責務
 
-ユーザーの発言に応じて、以下のいずれかのモードで動作する:
+以下だけを管理する。
 
-### 記録モード
-トリガー: 「実験を記録して」「ログを更新して」「結果をまとめて」「○○の実験を追加して」
+- Current baseline / Validation / Current focus
+- 実験番号とベース実験
+- 仮説または変更意図
+- CV
+- Public LB
+- 短い観測結果または再検討の手がかり
 
-### 参照モード
-トリガー: 「次何やる？」「実験履歴を見て」「アイデアある？」「振り返って」
-
----
-
-## 参照モードの手順
-
-### Step 1: 入口ドキュメント読み込み
-
-まず以下の 2 ファイルを読む（必読）。
-
-1. `docs/agent_brief.md` — 現在の戦略・重要知見・禁止事項・未解決の問い
-2. `docs/decision_rules.md` — 採用 / 封印 / 条件付き / 運用注意
-
-この時点で多くの質問は答えられる。`docs/experiment_log.md` の全文は **読まない**。
-
-### Step 2: 必要なら個別実験を特定
-
-詳細が要る場合のみ:
-
-1. `docs/experiment_index.md` で関連実験を探す
-2. 該当実験の **`docs/experiment_log.md` 内のセクションだけ** を読む（offset/limit で範囲指定）
-3. `experiments/{NNN}/SPEC.md` があれば併読
-
-### Step 3: 分析・提案
-
-ユーザーの質問に応じて:
-
-- **「次何やる？」**: `agent_brief.md` の Open Questions と `decision_rules.md` の Conditional / Adopted を起点に、**Do Not Repeat に抵触しない**範囲で次に試すべき実験を提案する。提案には以下を含める:
-  - なぜそのアプローチを推奨するか（過去の実験・知見からの根拠）
-  - 期待される改善効果
-  - リスクや注意点（`decision_rules.md` Operational Pitfalls 参照）
-
-- **「振り返って」**: `experiment_index.md` を時系列で整理し、Phase ごとの成功/失敗パターンを分析
-
-- **「アイデアある？」**: `agent_brief.md` Open Questions + `docs/` 配下のドメイン知識を参照しつつ、Rejected に該当しない案を提示
-
----
-
-## 記録モードの手順
-
-### Step 1: 現状把握
-
-1. **`docs/agent_brief.md`** と **`docs/decision_rules.md`** を読み、現状の戦略・ルールを把握
-2. **`docs/experiment_index.md`** を読み、対象実験の位置付けを確認
-3. 対象実験の `experiment_log.md` 既存セクション（あれば）と前後の実験を読む
-4. 対象の実験番号を特定する（引数から、または最新の実験を自動検出）
-
-### Step 2: 実験の自動分析
-
-以下のソースから情報を収集する:
-
-```
-experiments/{NNN}/config.py     → ハイパーパラメータ、モデル設定
-experiments/{NNN}/train.py      → 学習ループ、損失関数
-experiments/{NNN}/model.py      → アーキテクチャ
-experiments/{NNN}/dataset.py    → データパイプライン
-experiments/{NNN}/sweep.py      → ハイパーパラメータ探索（あれば）
-experiments/{NNN}/SPEC.md       → 実装仕様書（あれば、ある実験のみ）
-experiments/{NNN}/*.py          → その他の実験固有スクリプト
-
-data/output/{NNN}/              → 学習結果（history.csv, config.yaml, train.log）
-git log -- experiments/{NNN}/   → 変更履歴
-```
-
-### Step 2.5: 不足情報の確認
-
-自動分析で取得できない情報を特定し、**AskUserQuestion ツールを使って** ユーザーに確認する。ドラフト作成前にこのステップを必ず実行すること。
-
-確認が必要になりやすい情報:
-- **LBスコア**: Kaggle上でしか確認できない。記録がなければ必ず聞く
-- **CVスコア**: history.csv や train.log にない場合は聞く
-- **仮説・動機**: コードからは「何をしたか」はわかるが「なぜそうしたか」はわからないことがある
-- **没アイデア**: 試そうとしてやめたこと、実装したが効果がなくコードに残っていないもの
-- **主観的な学び**: 数値に表れない気づきや直感
-- **判断の更新**: 今回の結果で `decision_rules.md` の Adopted / Rejected / Conditional に動きが出るか
-
-### Step 3: ドラフト作成（更新対象は複数ファイル）
-
-#### 3a. `experiments/{NNN}/SPEC.md`（必要な実験のみ）
-新規・大きな実験では設計仕様を残す。フォーマットは [assets/template.md](assets/template.md) の `experiments/{NNN}/SPEC.md` セクションを参考に。
-
-#### 3b. `docs/experiment_log.md`（詳細な時系列ログ・必須）
-
-既存実験の追記、または新規 Experiment セクションを追加。フォーマット:
+台帳は次の列を維持する。
 
 ```markdown
-### Experiment {NNN}: {タイトル}
-
-#### 仮説
-この実験で検証しようとしたこと。なぜこのアプローチを選んだか。
-
-#### アプローチ
-使用した手法、モデル、データパイプラインの概要。
-
-#### 前実験からの変更点
-直前の実験から何を変えたか。変更の意図も含める（001 の場合は省略）。
-
-#### 結果
-- CV: {スコア}
-- LB: {スコア}
-- 主要な数値結果のテーブル（sweep結果等があれば）
-
-#### 学び・考察
-実験から得られた知見。次の実験にどう活かすか。
-
-#### 失敗・没アイデアメモ
-試したがうまくいかなかったこと。その理由の仮説。
+| Exp | Base | Hypothesis / Change | CV | Public LB | Observation / Revisit cue |
 ```
 
-`Current Status` ブロック（ファイル冒頭）の Best LB / Phase / Recent milestones / Next Priority も更新する。
+セル内の文章は短くし、Markdownの表を壊す `|` はエスケープする。
 
-#### 3c. `docs/experiment_index.md`（必須）
-新規実験の行を追加、または既存行の LB / Decision を更新する。
+## 実験を開始する
 
-#### 3d. `docs/agent_brief.md`（必要に応じて）
-**次の意思決定に影響する変化があった場合のみ** 更新:
-- Best LB / Current Phase / Active experiments / Next likely moves
-- 新たに見えた Strategic Conclusion
-- 新たに確定した Do Not Repeat
-- Open Questions の追加・解消
+1. 台帳から関連実験と現在の比較基準を確認する。
+2. 新しい実験で検証する仮説、ベース実験、変更点を特定する。仮説が不明なら実装前にユーザーへ確認する。
+3. ユーザーが実験作成まで依頼している場合、`scripts/new_exp.sh` で新しい実験フォルダを作る。
+4. 結果を見る前に、台帳へ次のような行を追加する。
 
-ここは **長くなりすぎないように** 古い項目を削除・統合する。実験完了で解消した Open Question は消す。詳細はあくまで `experiment_log.md` 側に書く。
-
-#### 3e. `docs/decision_rules.md`（判断が動いたときのみ）
-- 新たに **Adopted** に確定したもの
-- 新たに **Rejected**（封印）したもの
-- **Conditional** から決着したもの
-- 新たに踏んだ **Operational Pitfalls**
-
-「実験ごとに必ず増やす」のではなく、本当に判断ルールに昇格したものだけを足す。
-
-### Step 4: Strategy（大方針）の扱い
-
-`docs/experiment_log.md` の `Strategy` セクションや、`docs/agent_brief.md` の Phase 進行は **AIが勝手に書き換えない**。
-フェーズの進行や方針変更が必要そうな場合は、ユーザーに提案して合意を得てから更新する。
-
-### Step 5: ユーザー確認
-
-ドラフトをユーザーに提示し、以下を確認してもらう:
-- スコアや数値が正しいか
-- 仮説や学びの記述が意図と合っているか
-- 追加・修正したい内容があるか
-- どのファイルを更新するか（experiment_log.md は基本必須、その他は内容次第）
-
-**ユーザーの承認を得てから各ファイルに書き込む。**
-
----
-
-## 初回作成フロー
-
-`docs/agent_brief.md` / `docs/decision_rules.md` / `docs/experiment_index.md` がまだ存在しない場合:
-
-1. `docs/experiment_log.md` と各 `experiments/*/SPEC.md` を読み、現状を把握
-2. [assets/template.md](assets/template.md) のテンプレートをベースに 4 ファイルのドラフトを作成
-3. **Strategy / Phase 進行は、実験履歴の分析結果をもとにAIがたたき台を提案 → ユーザーと合意してから記入**
-4. 全体をユーザーに確認してもらい、承認後にファイル作成
-
----
-
-## Examples
-
-### 例1: 実験完了後に記録
-```
-ユーザー: 「001 の実験結果を記録して」
-→ 記録モード起動
-→ agent_brief.md / decision_rules.md / experiment_index.md / experiment_log.md (関連セクション) / experiments/001/ を読む
-→ AskUserQuestion で LB / 学び / 没アイデアを確認
-→ ドラフト: experiment_log.md (001 結果追記) + experiment_index.md (001 行更新)
-        + agent_brief.md (Active experiments / Next moves 更新)
-        + 必要なら decision_rules.md (Adopted/Rejected 更新)
-→ ユーザー確認 → 承認後に各ファイル更新
+```markdown
+| 015 | 012 | 擬似ラベルで希少クラスの教師不足を補えると考え、学習データへ追加する | — | — (未提出) | 実行前 |
 ```
 
-### 例2: 次の実験を検討
-```
-ユーザー: 「次何やるべき？」
-→ 参照モード起動
-→ agent_brief.md と decision_rules.md を読む
-→ Open Questions + Conditional + Adopted の組み合わせから候補を提案
-→ Do Not Repeat に抵触しないか確認
-→ 過去実験を踏まえた具体的な次手を推奨
-（experiment_log.md 全文は読まない）
-```
+アイデアを提案しただけで着手しない場合は、台帳へ追加しない。
 
-### 例3: 知見の振り返り
-```
-ユーザー: 「これまでの実験を振り返って」
-→ 参照モード起動
-→ experiment_index.md を時系列で読み、Phase ごとに整理
-→ 各 Phase の Best / Closed / 学びを要約
-→ 必要な実験だけ experiment_log.md の該当セクションを読む
+## CV結果を記録する
+
+1. 対象の実験番号とversionを特定する。
+2. `experiments/{NNN}/`、`data/output/{NNN}/`、必要なら対象パスのGit履歴を調べる。
+3. CVを出力ファイルやログから取得する。取得できず、実験済みならユーザーへ確認する。
+4. 対応する台帳行のCVとObservationを更新する。
+5. 特定versionの結果なら、Expを `015/v2` のように記録するか、Observationにversionを明記する。
+
+Observationには、比較可能な場合だけベースとの差を短く書く。
+
+```markdown
+| 015 | 012 | 擬似ラベルで希少クラスの教師不足を補えると考え、学習データへ追加する | 0.8241 | — (未提出) | exp 012比でCV +0.0032 |
 ```
 
----
+「効果なし」「失敗」「封印」ではなく、観測事実を書く。実装不備で評価できない場合は、その旨を明記して性能判断をしない。
 
-## Common Issues
+## Public LBを記録する
 
-### 実験結果のファイルが見つからない
-- `data/output/{NNN}/` が存在しない場合、実験がまだ実行されていない可能性がある
-- ユーザーに実行状況を確認する
+1. Kaggleの提出結果またはユーザーが提示したスコアを確認する。
+2. 対応する実験・versionを確認する。
+3. Public LB列を更新し、必要ならCVとの関係をObservationへ追記する。
 
-### LBスコアが不明
-- LBスコアはKaggle上でしか確認できない
-- ユーザーに聞くか、「LB: 未提出」と記録する
+提出していない場合は `— (未提出)`、提出済みだが値を確認できない場合はユーザーへ確認する。
 
-### 既存のドキュメント間で矛盾がある
-- `experiment_log.md` を **真実の原本** として扱う
-- `agent_brief.md` / `decision_rules.md` / `experiment_index.md` は派生情報なので、矛盾発見時はユーザーに確認の上、原本に合わせて更新する
+## 過去実験を振り返る
 
-### `agent_brief.md` / `decision_rules.md` が長くなってきた
-- 古くなった Open Question / 解消済みの Conditional は削除する
-- 詳細はあくまで `experiment_log.md` に残し、入口 2 ファイルは「今の判断に必要なもの」だけに絞る
-- 削減提案はユーザー承認を取る
+1. まず台帳だけを読み、仮説、ベース、CV、Public LB、再検討の手がかりを整理する。
+2. 詳細な条件が必要な候補だけ `experiments/{NNN}/` を読む。
+3. 当時と現在で変化したデータ、ベースライン、モデル、学習条件、評価方法を比較する。
+4. 過去の低スコアだけを理由に候補から除外しない。前提が変わったことで再検討価値が生じる案を示す。
+
+比較できないCV方式を同列に順位付けしない。単純な最高スコアだけでCurrent baselineを変更しない。
+
+## `docs/engineering_notes.md` を更新する
+
+次をすべて満たす場合だけ追記する。
+
+- 複数の実験に影響する。
+- 再発すると結果、成果物、再現性、提出を壊す。
+- モデル性能の仮説ではなく、実装・運用上の事実である。
+- 現在も有効である。
+
+実験固有の実装詳細はコードコメントへ置く。性能改善の知見、アイデア、採否判断は書かない。古くなった注意事項は履歴として残さず、削除または現在の仕様へ更新する。
+
+## Current Contextを更新する
+
+- `Current baseline` は、ユーザーが比較基準として選んだときだけ変更する。最高スコアと同義とは限らない。
+- `Validation` はCV方式や評価条件が変わったときに更新する。旧方式のスコアが台帳に残る場合は各行で区別する。
+- `Current focus` は方針変更が明示されたときに短く更新する。
+
+## Do Not Add
+
+- ハイパーパラメーター一覧
+- コードから復元できる実装詳細
+- 長い時系列ログ
+- Adopted / Rejected / Do Not Repeat
+- 根拠のない原因推測
+- 永久的な性能判断
+- 複数ファイルへの同一情報の重複
+
+## Legacy Documents
+
+`agent_brief.md`、`decision_rules.md`、`experiment_index.md`、`experiment_log.md` だけが存在する旧プロジェクトでは、勝手に削除・移行しない。新方式への移行範囲をユーザーと確認してから `experiments.md` と `engineering_notes.md` を作る。

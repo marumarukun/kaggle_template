@@ -10,5 +10,5 @@ if [ -z "$1" ]; then
 fi
 
 echo "Uploading artifacts..."
-python src/upload.py artifacts --exp_name "$@"
+uv run python src/upload.py artifacts --exp_name "$@"
 echo "Done!"
