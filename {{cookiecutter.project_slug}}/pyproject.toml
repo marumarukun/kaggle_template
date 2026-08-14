@@ -6,6 +6,10 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "numpy",
+    "kaggle>=2.2.4",
+    "fire>=0.7.1",
+    "rootutils>=1.0.7",
+    "wandb>=0.28.2",
 ]
 
 [tool.ruff]
