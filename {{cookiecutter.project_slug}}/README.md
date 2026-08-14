@@ -420,6 +420,7 @@ Kaggle上の最新バージョン番号は、Kaggle Web の Models ページで�
 |-----------|------|---------------|
 | `enable_gpu` | `"true"` でGPU有効 | **GPU推論が必要な場合**に `"true"` に変更 |
 | `enable_tpu` | `"true"` でTPU有効 | **TPU推論が必要な場合**に `"true"` に変更 |
+| `machine_shape` | GPU/TPUの種類（`NvidiaTeslaT4` / `NvidiaTeslaP100` / `Tpu1VmV38`） | `enable_gpu` より優先されるため、CPU実行時は行ごと削除 |
 | `enable_internet` | `"true"` でインターネット有効 | 通常は `"false"`（コンペ規約に依存） |
 | `is_private` | `"true"` = 非公開 | 公開したい場合に `"false"` |
 
